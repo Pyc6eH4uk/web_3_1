@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Boxes</title>
+</head>
+<body>
+    {% if error %}
+        <span>{{error}}</span>
+    {% endif %}
+    {% if happy %}
+        <span>{{happy}}</span>
+    {% endif %}
+    {% if boxes|length > 0 %}
+        {% for key, value in boxes.items() %}
+        <p>{{key}} - {{value}}</p>
+        {% endfor %}
+    {% else %}
+    <span>No available boxes :c</span>
+    {% endif %}
+</body>
+</html>
