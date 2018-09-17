@@ -13,7 +13,8 @@
     {% endif %}
     {% if boxes|length > 0 %}
         {% for key, value in boxes.items() %}
-        <p>{{key}} - {{value}}</p>
+        {% set my_color = value %}
+        <p><b style="background: {{value}}">{{key}}</b> - {{value}}</p>
         {% endfor %}
     {% else %}
     <span>No available boxes :c</span>
