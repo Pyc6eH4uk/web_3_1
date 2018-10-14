@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{box_name}}</title>
+</head>
+<body style="background: {{color}}">
+    <h1>Things in box:</h1>
+    <div>
+        {% for thing, cnt in things.items() %}
+        {% if cnt > 1 %}
+            <p>{{thing}} are {{cnt}}</p>
+        {% else %}
+            <p>{{thing}} is {{cnt}}</p>
+        {% endif %}
+        {% endfor %}
+    </div>
+    <form><input type=button value="Refresh" onClick="history.go()"></form>
+</body>
+</html>

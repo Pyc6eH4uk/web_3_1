@@ -1,10 +1,10 @@
 from flask import Flask, request, jsonify, render_template
 from utils.helper import colors
-
+from collections import defaultdict
 app = Flask(__name__)
 
 
-boxes = dict()
+boxes = defaultdict(dict)
 
 
 @app.route('/')
@@ -32,9 +32,44 @@ def available_boxes():
             return render_template('boxes.html', boxes=boxes, error=error)
 
 
+@app.route('/boxes/<box_name>', methods=['GET', 'POST'])
+def extend_box(box_name):
+    if request.method == 'GET':
+        if is_box_exist(box_name):
+            print(boxes[box_name]['things'])
+            return render_template('box_items.html', box_name=box_name,
+                                   color=boxes[box_name]['color'],  things=boxes[box_name]['things'])
+
+        else:
+            return 'No boxes with {} name'.format(box_name), 404
+
+    if request.method == 'POST':
+        if is_box_exist(box_name):
+            name = request.form['name']
+            extend_boxes(box_name, name)
+            return render_template('box_items.html', box_name=box_name,
+                                   color=boxes[box_name]['color'], things=boxes[box_name]['things'])
+        else:
+            return 'No boxes with {} name'.format(box_name), 404
+
+
 def create_box(name, color):
-    print(name, color)
-    boxes[name] = color
+    boxes[name] = dict()
+    boxes[name]['color'] = color
+    boxes[name]['things'] = dict()
+
+
+def is_box_exist(box_name):
+    if box_name not in boxes.keys():
+        return False
+    return True
+
+
+def extend_boxes(box_name, name):
+    if name in boxes[box_name]['things'].keys():
+        boxes[box_name]['things'][name] += 1
+    else:
+        boxes[box_name]['things'][name] = 1
 
 
 if __name__ == '__main__':
