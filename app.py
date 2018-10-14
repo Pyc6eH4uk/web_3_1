@@ -1,9 +1,10 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, session, render_template, url_for, redirect
 from utils.helper import colors
 from collections import defaultdict
 app = Flask(__name__)
+app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
 
-
+users = ['user1', 'user2', 'user3']
 boxes = defaultdict(dict)
 
 
@@ -12,14 +13,27 @@ def index():
     return render_template('index.html', boxes=boxes)
 
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'GET':
+        print(session)
+        return render_template('login.html')
+
+    if request.method == 'POST':
+        session['user'] = request.form['name']
+        return redirect(url_for('index'))
+
+
 @app.route('/boxes', methods=['GET', 'POST'])
 def available_boxes():
     if request.method == 'GET':
+        print(session)
         return render_template('boxes.html', boxes=boxes)
 
     if request.method == 'POST':
         name = request.form['name']
         color = request.form['color']
+        print(session)
         if color not in colors:
             error = 'You can not add box with such color: {}'.format(color)
             return render_template('boxes.html', boxes=boxes, error=error)
@@ -32,7 +46,7 @@ def available_boxes():
             return render_template('boxes.html', boxes=boxes, error=error)
 
 
-@app.route('/boxes/<box_name>', methods=['GET', 'POST'])
+@app.route('/boxes/<box_name>', methods=['GET', 'PUT'])
 def extend_box(box_name):
     if request.method == 'GET':
         if is_box_exist(box_name):
@@ -45,10 +59,13 @@ def extend_box(box_name):
 
     if request.method == 'POST':
         if is_box_exist(box_name):
-            name = request.form['name']
-            extend_boxes(box_name, name)
-            return render_template('box_items.html', box_name=box_name,
-                                   color=boxes[box_name]['color'], things=boxes[box_name]['things'])
+            if session['user'] == boxes[box_name]['creator']:
+                name = request.form['name']
+                extend_boxes(box_name, name)
+                return render_template('box_items.html', box_name=box_name,
+                                       color=boxes[box_name]['color'], things=boxes[box_name]['things'])
+            else:
+                return 'Restricted access', 400
         else:
             return 'No boxes with {} name'.format(box_name), 404
 
@@ -56,6 +73,7 @@ def extend_box(box_name):
 def create_box(name, color):
     boxes[name] = dict()
     boxes[name]['color'] = color
+    boxes[name]['creator'] = session['user']
     boxes[name]['things'] = dict()
 
 
